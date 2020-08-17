@@ -23,7 +23,7 @@ class TableViewController: UITableViewController {
 
     //Retrieve Data
     func loadData() {
-        db.collection("testReceipts").getDocuments() {
+        db.collection("arrayHoldingMaps").getDocuments() {
             querySnapshot, error in
             if let error = error {
                 print("bbug Error getting \(error.localizedDescription)")
@@ -63,12 +63,19 @@ class TableViewController: UITableViewController {
             //This is where we send our data up to the cloud database
             //Ensure all of the forms are filled out correctly
             if let name = composeAlert.textFields?.first?.text, let content = composeAlert.textFields?[1].text, let cost = composeAlert.textFields?.last?.text {
-                let newReceipt = Receipt(name: name, content: [Item(item_name: "\(content)", item_no: "\(cost)")], cost: cost) //Create a sweet object
+                //CONVERT ITEM HERE
+                let item1 = Item(item_name: "\(content)", item_no: "\(cost)")
+                let item2 = Item(item_name: "secondItem", item_no: "ItemNumber2")
+                let item3 = Item(item_name: "secondItem", item_no: "ItemNumber2")
+
+
+
+                let newReceipt = Receipt(name: name, content: [item1, item2, item3], cost: cost) //Create a sweet object
     
                 var ref:DocumentReference? = nil // This lets firestore generate a random ID for us
 
                 //Take our new receipt and convert it to a JSON Dictionary
-                ref = self.db.collection("testReceipts").addDocument(data: newReceipt.convertDataToJSONforUpload) {
+                ref = self.db.collection("arrayHoldingMaps").addDocument(data: newReceipt.convertDataToJSONforUpload) {
                     error in
 
                     if let error = error {
@@ -101,7 +108,7 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 
         let displayReceipt = allReceipts[indexPath.row]
-        cell.textLabel?.text = "name: \(displayReceipt.name),    item name: \(displayReceipt.content[0].item_name)"
+        cell.textLabel?.text = "name: \(displayReceipt.name), item name: \(displayReceipt.content[1].item_name)"
         cell.detailTextLabel?.text = "total cost: \(displayReceipt.cost)"
 
         return cell
