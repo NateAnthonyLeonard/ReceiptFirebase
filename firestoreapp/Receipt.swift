@@ -11,6 +11,9 @@ struct Item: Codable {
     var item_no: String
 }
 
+//Convert to Dictionary Function
+//func convertToDictionary(inputObject: Any) ->
+
 struct Receipt {
     var name: String
     var content: [Item]
@@ -19,7 +22,7 @@ struct Receipt {
     var convertDataToJSONforUpload:[String: Any] {
         return [
             "name": name,
-            "content": try? content[0].asDictionary(),
+            "content": ConverterFunctions.convertToArrayOfMaps(inputArray: content), // try? content[0].asDictionary(),
             "cost": cost
         ]
     }
@@ -28,17 +31,24 @@ struct Receipt {
 extension Receipt : DocumentSerializable {
     init?(dictionary: [String: Any]) {
         guard let name = dictionary["name"] as? String,
-            let content = dictionary["content"] as? Dictionary<String, String>,
+            let content = dictionary["content"] as? [Dictionary<String, String>],
             let cost = dictionary["cost"] as? String else { return nil }
 
         //Where the Magic Happens During Deserialization - we take each pair in Dictionary<String: Any> and convert to an Item.
-        var item = [Item]()
+        var items = [Item]()
 
-        let itemName = content["item_name"] ?? ""
-        let itemNumber = content["item_no"] ?? ""
-        item.append(Item(item_name: itemName, item_no: itemNumber))
+        for x in content {
+            let itemName = x["item_name"] ?? ""
+            let itemNumber = x["item_no"] ?? ""
+            items.append(Item(item_name: itemName, item_no: itemNumber))
+        }
+         //   items.append(Item(item_name: content[x]["item_name"], item_no: content[x]["item_no"]))
+
+//        let itemName = content["item_name"] ?? ""
+//        let itemNumber = content["item_no"] ?? ""
+          //  items.append(Item(item_name: itemName, item_no: itemNumber))
 
 
-        self.init(name: name, content: item, cost: cost)
+        self.init(name: name, content: items, cost: cost)
     }
 }
